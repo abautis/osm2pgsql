@@ -19,9 +19,9 @@ environment:
     PGUSER: postgres
     PGPASSWORD: Password12!
   matrix:
-    - name: 32bit
+    - job_name: 32bit
       platform: x86
-    - name: 64bit
+    - job_name: 64bit
       platform: x64
 
 os: Visual Studio 2015
@@ -35,7 +35,7 @@ clone_depth: 1
 
 init:
   - git config --global core.autocrlf input
-  - set VCVARSALL_ARG=%platform%
+  - VCVARSALL_ARG=%platform%
   - if [%platform%]==[x64] ( SET VCVARSALL_ARG=amd64 )
   - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall" %VCVARSALL_ARG%'
 
