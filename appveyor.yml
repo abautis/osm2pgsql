@@ -42,12 +42,11 @@ install:
   - set CONDA_PATH=C:\Miniconda36
   - if [%platform%]==[x64] ( SET CONDA_PATH=C:\Miniconda36-x64 )
   - set PATH=%TESTS_POSTGRESQL_ROOt%\bin;%PATH%;%CONDA_PATH%\Scripts
-  - set LUA_URL=https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_%platform%.zip
   - conda config --set always_yes yes
   - conda create --name osm2pgsql
   - activate osm2pgsql
   - conda install bzip2=%BZIP2_VER% expat=%EXPAT_VER% proj4=%PROJ4_VER% zlib=%ZLIB_VER% postgresql=%POSTGRESQL_VER%
-  - ps: if (!(Test-Path "C:\lua_$env:platform.zip")){(new-object net.webclient).DownloadFile($env:LUA_URL, "C:\lua_$env:platform.zip")}
+  - ps: if (!(Test-Path "C:\lua_$env:platform.zip")){(new-object net.webclient).DownloadFile("https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_$env:platform.zip", "C:\lua_$env:platform.zip")}
   - 7z x -y C:\lua_%platform%.zip -oC:\lua
   - ps: if (!(Test-Path "C:\postgis.zip")){(new-object net.webclient).DownloadFile($env:POSTGIS_URL, "C:\postgis.zip")}
   - 7z x C:\postgis.zip -oC:\postgis
