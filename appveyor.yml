@@ -47,6 +47,7 @@ install:
     ) else (
         set CONDA_PATH=C:\Miniconda36-x64\Scripts
     )
+  - set CONDA_PATH=C:\Miniconda36\Scripts
   - set PATH=%TESTS_POSTGRESQL_ROOt%\bin;%PATH%;%CONDA_PATH%
   - set LUA_URL=https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_%platform%.zip
   - conda config --set always_yes yes
