@@ -19,9 +19,9 @@ environment:
     PGUSER: postgres
     PGPASSWORD: Password12!
   matrix:
-    - job_name: 32bit
+    - APPVEYOR_JOB_NAME: 32bit
       platform: x86
-    - job_name: 64bit
+    - APPVEYOR_JOB_NAME: 64bit
       platform: x64
 
 os: Visual Studio 2015
