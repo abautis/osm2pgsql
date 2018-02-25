@@ -35,15 +35,18 @@ init:
   - git config --global core.autocrlf input
   - if [%platform%]==[x86] (
         set VCVARSALL_ARG=x86
-        set CONDA_PATH=C:\Miniconda36
     ) else (
         set VCVARSALL_ARG=amd64
-        set CONDA_PATH=C:\Miniconda36-x64
     )
   - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall" %VCVARSALL_ARG%'
 
 install:
   - cd c:\
+  - if [%platform%]==[x86] (
+        set CONDA_PATH=C:\Miniconda36
+    ) else (
+        set CONDA_PATH=C:\Miniconda36-x64
+    )
   - set PATH=%TESTS_POSTGRESQL_ROOt%\bin;%PATH%;%CONDA_PATH%\Scripts
   - SET LUA_URL=https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_%platform%.zip
   - conda config --set always_yes yes
@@ -78,7 +81,11 @@ build_script:
 
 after_build:
   - mkdir osm2pgsql-bin
-  - set CONDA_LIBRARY_PATH=%CONDA_PATH%\envs\osm2pgsql\Library
+  - if [%platform%]==[x86] (
+        set CONDA_LIBRARY_PATH=C:\Miniconda36\envs\osm2pgsql\Library
+    ) else (
+        set CONDA_LIBRARY_PATH=C:\Miniconda36-x64\envs\osm2pgsql\Library
+    )
   - copy /y *.exe osm2pgsql-bin
   - copy /y ..\*.style osm2pgsql-bin
   - copy /y ..\*.lua osm2pgsql-bin
@@ -99,7 +106,11 @@ before_test:
   - |
     psql -c "CREATE TABLESPACE tablespacetest LOCATION 'c:/temp'"
   - set PATH=c:\osm2pgsql\build\osm2pgsql-bin;%PATH%
-  - set PROJ_LIB=%CONDA_LIBRARY_PATH%\share
+  - if [%platform%]==[x86] (
+        set PROJ_LIB=C:\Miniconda36\envs\osm2pgsql\Library\share
+    ) else (
+        set PROJ_LIB=C:\Miniconda36-x64\envs\osm2pgsql\Library\share
+    )
 
 test_script:
   - cd c:\osm2pgsql\build
