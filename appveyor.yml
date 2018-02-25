@@ -22,8 +22,6 @@ environment:
     - platform: x86
     - platform: x64
 
-Configuration: Release
-
 os: Visual Studio 2015
 
 services:
