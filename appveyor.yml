@@ -20,17 +20,9 @@ environment:
     PGPASSWORD: Password12!
   matrix:
     - platform: x86
-      vcvarsall_arg: x86
-      conda_path: C:\Miniconda36\Scripts
-      conda_library_path: C:\Miniconda36\envs\osm2pgsql\Library
-      lua_url: "https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_x86.zip"
-      build_type: Release
     - platform: x64
-      vcvarsall_arg: amd64
-      conda_path: C:\Miniconda36-x64\Scripts
-      conda_library_path: C:\Miniconda36-x64\envs\osm2pgsql\Library
-      lua_url: "https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_x64.zip"
-      build_type: Release
+
+Configuration: Release
 
 os: Visual Studio 2015
 
@@ -43,16 +35,24 @@ clone_depth: 1
 
 init:
   - git config --global core.autocrlf input
-  - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall" %vcvarsall_arg%'
+  - if [%platform%]==[x86] (
+        set VCVARSALL_ARG=x86
+        set CONDA_PATH=C:\Miniconda36
+    ) else (
+        set VCVARSALL_ARG=amd64
+        set CONDA_PATH=C:\Miniconda36-x64
+    )
+  - '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall" %VCVARSALL_ARG%'
 
 install:
   - cd c:\
-  - set PATH=%TESTS_POSTGRESQL_ROOt%\bin;%PATH%;%conda_path%
+  - set PATH=%TESTS_POSTGRESQL_ROOt%\bin;%PATH%;%CONDA_PATH%\Scripts
+  - SET LUA_URL=https://lonvia.dev.openstreetmap.org/osm2pgsql-winbuild/lua_%platform%.zip
   - conda config --set always_yes yes
   - conda create --name osm2pgsql
   - activate osm2pgsql
   - conda install bzip2=%BZIP2_VER% expat=%EXPAT_VER% proj4=%PROJ4_VER% zlib=%ZLIB_VER% postgresql=%POSTGRESQL_VER%
-  - ps: if (!(Test-Path "C:\lua_$env:platform.zip")){(new-object net.webclient).DownloadFile($env:lua_url, "C:\lua_$env:platform.zip")}
+  - ps: if (!(Test-Path "C:\lua_$env:platform.zip")){(new-object net.webclient).DownloadFile($env:LUA_URL, "C:\lua_$env:platform.zip")}
   - 7z x -y C:\lua_%platform%.zip -oC:\lua
   - ps: if (!(Test-Path "C:\postgis.zip")){(new-object net.webclient).DownloadFile($env:POSTGIS_URL, "C:\postgis.zip")}
   - 7z x C:\postgis.zip -oC:\postgis
@@ -80,15 +80,16 @@ build_script:
 
 after_build:
   - mkdir osm2pgsql-bin
+  - set CONDA_LIBRARY_PATH=%CONDA_PATH%\envs\osm2pgsql\Library
   - copy /y *.exe osm2pgsql-bin
   - copy /y ..\*.style osm2pgsql-bin
   - copy /y ..\*.lua osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\libpq.dll osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\libeay32.dll osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\ssleay32.dll osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\zlib.dll osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\expat.dll osm2pgsql-bin
-  - copy /y %conda_library_path%\bin\libbz2.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\libpq.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\libeay32.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\ssleay32.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\zlib.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\expat.dll osm2pgsql-bin
+  - copy /y %CONDA_LIBRARY_PATH%\bin\libbz2.dll osm2pgsql-bin
   - copy /y %LUA_DLL% osm2pgsql-bin
   - 7z a c:\osm2pgsql\osm2pgsql_%build_type%_%platform%.zip osm2pgsql-bin -tzip
 
@@ -100,7 +101,7 @@ before_test:
   - |
     psql -c "CREATE TABLESPACE tablespacetest LOCATION 'c:/temp'"
   - set PATH=c:\osm2pgsql\build\osm2pgsql-bin;%PATH%
-  - set PROJ_LIB=%conda_library_path%\share
+  - set PROJ_LIB=%CONDA_LIBRARY_PATH%\share
 
 test_script:
   - cd c:\osm2pgsql\build
