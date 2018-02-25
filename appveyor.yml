@@ -19,8 +19,10 @@ environment:
     PGUSER: postgres
     PGPASSWORD: Password12!
   matrix:
-    - platform: x86
-    - platform: x64
+    - name: 32bit
+      platform: x86
+    - name: 64bit
+      platform: x64
 
 os: Visual Studio 2015
 
@@ -74,7 +76,7 @@ build_script:
 
 after_build:
   - mkdir osm2pgsql-bin
-  - CONDA_LIBRARY_PATH=%CONDA_PATH%\envs\osm2pgsql\Library
+  - set CONDA_LIBRARY_PATH=%CONDA_PATH%\envs\osm2pgsql\Library
   - copy /y *.exe osm2pgsql-bin
   - copy /y ..\*.style osm2pgsql-bin
   - copy /y ..\*.lua osm2pgsql-bin
